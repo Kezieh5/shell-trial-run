@@ -10,15 +10,15 @@
 
 int (*get_builtin(char *string))()
 {
-	unsigned int j = 0;
+	unsigned int t = 0;
 
-	while (list[j].name != NULL)
+	while (list[t].name != NULL)
 	{
-		if ((_strcmp(string, list[j].name)) == 0)
+		if ((_strcmp(string, list[t].name)) == 0)
 		{
-			return (list[j].func);
+			return (list[t].func);
 		}
-		j++;
+		t++;
 	}
 	return (NULL);
 }
@@ -30,11 +30,11 @@ int (*get_builtin(char *string))()
 
 int env(void)
 {
-	int i = 0;
+	int u = 0;
 
-	for (i = 0; environ[i]; i++)
+	for (u = 0; environ[u]; u++)
 	{
-		write(1, environ[i], _strlen(environ[i]));
+		write(1, environ[u], _strlen(environ[u]));
 		write(1, "\n", 1);
 	}
 	return (0);
