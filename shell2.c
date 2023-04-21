@@ -7,8 +7,8 @@
 #define MAX_COMMAND_LENGTH 100
 
 void display_prompt(const char* prompt) {
-    printf("%s", prompt);
-    fflush(stdout);
+    write(STDOUT_FILENO, prompt, strlen(prompt));
+    fsync(STDOUT_FILENO);
 }
 int main(int argc, char *argv[]) {
     while (1) {
@@ -18,10 +18,10 @@ int main(int argc, char *argv[]) {
         char command[MAX_COMMAND_LENGTH];
         if (fgets(command, MAX_COMMAND_LENGTH, stdin) == NULL) {
             // End of file condition (Ctrl+D)
-            printf("\n");
+            write(STDOUT_FILENO, "\n", 1);
             break;
         }
-
+ 
         // Remove trailing newline character
         command[strcspn(command, "\n")] = '\0';
 
@@ -62,4 +62,3 @@ int main(int argc, char *argv[]) {
 
     return 0;
 }
-

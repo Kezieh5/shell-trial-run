@@ -7,8 +7,8 @@
 #define MAX_COMMAND_LENGTH 126
 
 void display_prompt(const char* prompt) {
-    printf("%s", prompt);
-    fflush(stdout);
+    write(STDOUT_FILENO, prompt, strlen(prompt));
+    fsync(STDOUT_FILENO);
 }
 
 int main() {
@@ -19,7 +19,7 @@ int main() {
         char command[MAX_COMMAND_LENGTH];
         if (fgets(command, MAX_COMMAND_LENGTH, stdin) == NULL) {
             // End of file condition (Ctrl+D)
-            printf("\n");
+            write(STDOUT_FILENO, "\n", 1);
             break;
         }
 	command[strcspn(command, "\n")] = '\0';
@@ -42,11 +42,14 @@ int main() {
                 exit(EXIT_FAILURE);
             }
             if (!WIFEXITED(status) || WEXITSTATUS(status) != 0) {
-                printf("Command '%s' could not be executed.\n", command);
+                const char* error_message = "Command '";
+    write(STDERR_FILENO, error_message, strlen(error_message));
+    write(STDERR_FILENO, command, strlen(command));
+    const char* error_message_end = "' could not be executed.\n";
+                write(STDERR_FILENO, error_message_end, strlen(error_message_end));
             }
         }
     }
 
     return 0;
 }
-
