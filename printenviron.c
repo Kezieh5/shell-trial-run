@@ -6,12 +6,14 @@
  * constant function prototype
  * Return: Always 0
  */
-int print_env(info_t *info)
+int _myenv(info_t *info)
 {
-    print_list_str(get_environ(info));
+    char **env = info->env;
+    for (int i = 0; env[i] != NULL; i++) {
+        puts(env[i]);
+    }
     return 0;
 }
-
 /**
  * get_env_var - gets the value of an environment variable
  * @info: Structure containing potential arguments. Used to maintain
@@ -22,59 +24,39 @@ int print_env(info_t *info)
 char *get_env_var(info_t *info, const char *name)
 {
     char **env = get_environ(info);
-    size_t q;
+    size_t i = 0;
 
-    for (q = 0; env[q]; q++)
-    {
-        if (_starts_with(env[q], name))
-            return env[q] + _strlen(name) + 1;
+    while (env[i] != NULL) {
+        if (_starts_with(env[i], name)) {
+            return env[i] + _strlen(name) + 1;
+        }
+        i++;
     }
 
     return NULL;
 }
-
-/**
- * set_env_var - initializes a new environment variable or modifies an existing one
- * @info: Structure containing potential arguments. Used to maintain
- * constant function prototype
- * Return: 0 on success, 1 on failure
- */
-int set_env_var(info_t *info)
-{
-    if (info->argc != 3)
-    {
-        _eputs("Incorrect number of arguments\n");
-        return 1;
-    }
-
-    if (_setenv(info, info->argv[1], info->argv[2]))
-        return 0;
-
-    return 1;
-}
-
 /**
  * unset_env_var - removes an environment variable
  * @info: Structure containing potential arguments. Used to maintain
  * constant function prototype.
  * Return: 0 on success, 1 on failure
  */
-int unset_env_var(info_t *info)
+int set_env_var(info_t *info)
 {
-    int q;
-
-    if (info->argc == 1)
-    {
-        _eputs("Too few arguments.\n");
-        return 1;
+    switch (info->argc) {
+        case 1:
+            _eputs("Missing argument(s)\n");
+            return 1;
+        case 2:
+            _eputs("Missing value\n");
+            return 1;
+        case 3:
+            return _setenv(info, info->argv[1], info->argv[2]) ? 1 : 0;
+        default:
+            _eputs("Too many arguments\n");
+            return 1;
     }
-
-    for (q = 1; q <= info->argc; q++)
-        _unsetenv(info, info->argv[q]);
-
-    return 0;
 }
-
 /**
  * populate_env_list - populates env linked list
  * @info: Structure containing potential arguments. Used to maintain
@@ -84,10 +66,10 @@ int unset_env_var(info_t *info)
 int populate_env_list(info_t *info)
 {
     list_t *node = NULL;
-    size_t q;
+    char **envp = environ;
 
-    for (q = 0; environ[q]; q++)
-        add_node_end(&node, environ[q], 0);
+    for (; *envp; envp++)
+        add_node_end(&node, *envp, 0);
 
     info->env = node;
     info->environ = NULL;
